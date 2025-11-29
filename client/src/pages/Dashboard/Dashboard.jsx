@@ -121,6 +121,7 @@ export default function Dashboard() {
         <div style={{ marginTop: 16 }}>
           <button className="button" onClick={() => {
             refresh();
+            
             show("Dashboard refreshed", "success");
           }}>
             Refresh

@@ -67,6 +67,18 @@ export default function Goals() {
     const completeGoal = async (id) => {
         try {
             await API.post(`/goals/${id}/complete`);
+            // create a local activity so Dashboard sees it immediately
+            const activities = JSON.parse(localStorage.getItem('pt_activities_v1') || '[]');
+            activities.unshift({
+                _id: 'a_' + Date.now(),
+                type: 'goal',
+                refId: id,
+                title: (goals.find(g => g._id === id)?.title) || 'Goal',
+                completedAt: new Date().toISOString(),
+                dateString: new Date().toISOString().split('T')[0]
+            });
+            localStorage.setItem('pt_activities_v1', JSON.stringify(activities));
+
             fetchGoals();
             show('Goal marked as completed!', 'success');
         } catch (err) {

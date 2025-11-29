@@ -50,7 +50,7 @@ export default function Routine() {
     const [deleteId, setDeleteId] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
-
+    
     useEffect(() => {
         // persist when routines change
         saveRoutines(routines);
@@ -223,9 +223,7 @@ export default function Routine() {
                                                 onFinish={() => markDoneLocal(r)}
                                                 onCancel={() => setRunning(null)}
                                             />
-                                            <div>
-                                                <button className="button small" onClick={() => markDoneLocal(r)}>Mark Done Now</button>
-                                            </div>
+                                           
                                         </div>
                                     ) : (
                                         <>
@@ -239,15 +237,31 @@ export default function Routine() {
                                             >
                                                 Delete
                                             </button>
-                                            <button
-                                                className="button small"
-                                                onClick={() => {
-                                                    // quick mark done
-                                                    markDoneLocal(r);
-                                                }}
-                                            >
-                                                Mark Done
-                                            </button>
+
+                                            {getCount(r._id) === 0 ? (
+                                                <button
+                                                    className="button small"
+                                                    onClick={() => {
+                                                        // quick mark done
+                                                        markDoneLocal(r);
+                                                    }}
+                                                >
+                                                    Mark Done
+                                                </button>
+                                            ) : (
+                                                <span
+                                                    style={{
+                                                        padding: '6px 10px',
+                                                        fontSize: 13,
+                                                        color: '#e9f3f0ff',
+                                                        background: 'green',
+                                                        borderRadius: 6,
+                                                        display: 'inline-block'
+                                                    }}
+                                                >
+                                                    Done
+                                                </span>
+                                            )}
                                         </>
                                     )}
                                 </div>
