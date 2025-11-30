@@ -27,6 +27,7 @@ exports.createGoal = async (req, res) => {
 exports.completeGoal = async (req, res) => {
   try {
     const { id } = req.params;
+
     const goal = await Goal.findById(id);
     if (!goal) return res.status(404).json({ error: 'Goal not found' });
     if (goal.completed) return res.status(400).json({ error: 'Goal already completed' });
@@ -35,12 +36,45 @@ exports.completeGoal = async (req, res) => {
     goal.completedAt = new Date();
     await goal.save();
 
+    // ----------------------------------------------
+    // CREATE ACTIVITY (idempotent)
+    // ----------------------------------------------
+    try {
+      const Activity = require('../models/Activity');
+
+      const now = new Date();
+      const dateString = now.toISOString().split('T')[0];
+
+      // Check if an activity already exists for this goal today
+      const existing = await Activity.findOne({
+        type: 'goal',
+        refId: goal._id.toString(),
+        dateString
+      });
+
+      if (!existing) {
+        await Activity.create({
+          type: 'goal',
+          refId: goal._id.toString(),
+          title: goal.title || goal.name || 'Goal',
+          completedAt: now,
+          dateString
+        });
+      }
+    } catch (err) {
+      console.error('Activity creation failed (non-fatal):', err);
+      // DO NOT return error — main response must still succeed
+    }
+    // ----------------------------------------------
+
     res.json(goal);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 // NEW: delete a goal
 exports.deleteGoal = async (req, res) => {

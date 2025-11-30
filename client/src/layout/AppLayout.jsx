@@ -4,9 +4,23 @@ export default function AppLayout({ children, page, onNavigate }) {
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="brand">Productivity</div>
+        <div
+          className="brand"
+          role="button"
+          tabIndex={0}
+          onClick={() => onNavigate('dashboard')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onNavigate('dashboard');
+            }
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          ⚒️Productivity
+        </div>
 
-        <div style={{fontSize:12, color:'#9ca3af'}}>Navigation</div>
+        <div style={{fontSize:12, color:'#9ca3af'}}></div>
         <nav className="nav">
           <button
             className={page === 'dashboard' ? 'active' : ''}
@@ -38,7 +52,7 @@ export default function AppLayout({ children, page, onNavigate }) {
         </nav>
 
         <div style={{marginTop:'auto', fontSize:12, color:'#9ca3af'}}>
-          Backend: <span style={{color:'#d1d5db'}}>http://localhost:5000</span>
+           <span style={{color:'#d1d5db'}}>Made with ❤️</span>
         </div>
       </aside>
 

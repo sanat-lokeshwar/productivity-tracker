@@ -10,7 +10,12 @@
   --glass: rgba(255, 255, 255, 0.6);
   --radius: 14px;
   --shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
-
+  --bg: #f8fafc;
+  --text: #0f172a;
+  --card-bg: #ffffff;
+  --card-shadow: 0 4px 10px rgba(2,6,23,0.06);
+  --muted: #6b7280;
+  --accent: #2563eb;
   --font-main: 'Inter', system-ui, sans-serif;
   --font-heading: 'Poppins', sans-serif;
 }
@@ -30,6 +35,21 @@ body,
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 160ms ease, color 160ms ease;
+}
+body.dark {
+  --bg: #0b1220;
+  --text: #e6eef8;
+  --card-bg: #071225;
+  --card-shadow: none;
+  --muted: #9aa8bf;
+  --accent: #60a5fa;
+  background: var(--bg);
+  color: var(--text);
 }
 
 p,
@@ -140,6 +160,11 @@ strong {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   border: 1px solid rgba(16, 24, 40, 0.03);
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 12px;
 }
 
 .card:hover {
@@ -162,7 +187,9 @@ strong {
   font-weight: 600;
   font-family: var(--font-heading);
   letter-spacing: 0.4px;
+  font-size: 20px;
 }
+
 
 .header-row small {
   color: var(--muted);
@@ -203,9 +230,25 @@ textarea:focus {
   font-family: var(--font-main);
   font-size: 0.95rem;
   letter-spacing: 0.3px;
-
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.button.small {
+  padding: 6px 10px;
+  font-size: 13px;
+  color:white
 }
 
+/* subtle small controls */
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
@@ -424,7 +467,11 @@ li {
 }
 .button.small.btn-ghost{
   color:#f3f6f4;
-  background-color: #16a34a;
+  background-color: red;
+}
+.button.small.green.btn-ghost{
+  color:#f3f6f4;
+  background-color:green;
 }
 /* TimePicker styles (scroll-like selects) */
 .time-picker { align-items:center; }
@@ -457,3 +504,83 @@ li {
 @media (max-width: 480px) {
   .time-column select { padding: 12px 14px; min-width:64px; font-size:1rem; }
 }
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+}
+.modal-card {
+  width: 680px;
+  max-width: calc(100% - 32px);
+  background: var(--card-bg);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: var(--card-shadow);
+}
+
+/* Search input look */
+.search-input {
+  background: var(--card-bg);
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* ghost button style */
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+}
+
+/* danger style */
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+/* small button baseline */
+.button.small {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+/* Completed section subtle background */
+.card h3 + div ul li {
+  padding: 6px 0;
+}
+
+/* make textareas clean in modal */
+.modal-card textarea {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* floating Add button shadow */
+.button[style*="position: fixed"] {
+  box-shadow: 0 8px 22px rgba(2,6,23,0.08);
+}
+/* small helpers for Routine page - reuse already added variables */
+.card { background: var(--card-bg); border-radius: 12px; padding: 16px; box-shadow: var(--card-shadow); margin-bottom: 12px; }
+.search-input { background: var(--card-bg); border-radius: 12px; display: inline-flex; align-items: center; padding: 4px 8px; border: 1px solid rgba(0,0,0,0.06); }
+.button.small { padding: 6px 10px; font-size: 13px; }
+
+/* Timer container adjustments */
+.timer-wrapper { display: flex; gap: 8; align-items: center; }
+
+/* modal already defined earlier - reuse modal-card and modal-overlay */
+/* Consistency small adjustments (cards + modal already shared earlier) */
+.card { background: var(--card-bg); border-radius: 12px; padding: 16px; box-shadow: var(--card-shadow); margin-bottom: 12px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.45); display: flex; align-items: center; justify-content: center; z-index: 1300; }
+.modal-card { width: 720px; max-width: calc(100% - 32px); background: var(--card-bg); color: var(--text); border-radius: 12px; padding: 18px; box-shadow: var(--card-shadow); }
+.btn-ghost { background: transparent; color: var(--muted); border: none; }
+.btn-danger { background: #ef4444; color: white; border: none; }

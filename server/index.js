@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const activitiesRouter = require('./routes/activities');
 
 const connectDB = require('./config/db');
 const goalsRoutes = require('./routes/goals');
@@ -15,7 +16,7 @@ connectDB();
 
 // mount API routes
 app.use('/api/goals', goalsRoutes);
-
+app.use('/api/activities', activitiesRouter);
 // tiny test route
 app.get('/', (req, res) => {
   res.json({ ok: true, msg: 'Server is up. Backend minimal setup works.' });
