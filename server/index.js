@@ -17,6 +17,11 @@ connectDB();
 // mount API routes
 app.use('/api/goals', goalsRoutes);
 app.use('/api/activities', activitiesRouter);
+// health route — add before your error handlers
+app.get('/healthz', (req, res) => {
+  res.status(200).json({ ok: true, time: new Date().toISOString() });
+});
+
 // tiny test route
 app.get('/', (req, res) => {
   res.json({ ok: true, msg: 'Server is up. Backend minimal setup works.' });
