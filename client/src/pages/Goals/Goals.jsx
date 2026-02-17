@@ -229,6 +229,48 @@ export default function Goals() {
       show('Failed to mark goal complete', 'error');
     }
   };
+  
+  // Undo complete: mark incomplete AND remove the activity record
+  // eslint-disable-next-line
+  const undoGoal = async (g) => {
+    try {
+      // 1. Mark goal as active again
+      await API.put(`/goals/${g._id}`, { completed: false });
+
+      // 2. Remove the local activity fallback for today
+      const todayString = new Date().toISOString().split('T')[0];
+      try {
+        const local = loadActivitiesLocal();
+        const filtered = local.filter(a => !(a.type === 'goal' && String(a.refId) === String(g._id) && a.dateString === todayString));
+        saveActivitiesLocal(filtered);
+      } catch (errLocal) {
+        console.warn('Failed to remove local activity on undo', errLocal);
+      }
+
+      // 3. Best-effort: remove the activity from the server
+      try {
+        const res = await API.get('/activities');
+        const activities = Array.isArray(res.data) ? res.data : [];
+        const matches = activities.filter(a => a.type === 'goal' && String(a.refId) === String(g._id) && a.dateString === todayString);
+        for (const act of matches) {
+          try {
+            await API.delete(`/activities/${act._id}`);
+          } catch (delErr) {
+            console.warn('Failed to delete server activity on undo', delErr);
+          }
+        }
+      } catch (errServer) {
+        console.warn('Could not fetch activities to clean up server-side', errServer);
+      }
+
+      // 4. Refresh the goals list
+      await fetchGoals();
+      show('Moved back to Active', 'success');
+    } catch (err) {
+      console.error('Undo failed', err);
+      show('Failed to move back', 'error');
+    }
+  };
 
   // Search/filter helpers
   const filteredActive = goals
@@ -357,18 +399,9 @@ export default function Goals() {
 
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <button className="button small" onClick={() => openEdit(g)}>Edit</button>
-                      <button className="button small green btn-ghost" onClick={() => {
-                        (async () => {
-                          try {
-                            await API.put(`/goals/${g._id}`, { completed: false });
-                            await fetchGoals();
-                            show('Moved back to Active', 'success');
-                          } catch (err) {
-                            console.warn('Uncomplete failed', err);
-                            show('Failed to move back', 'error');
-                          }
-                        })();
-                      }}>Undo</button>
+                     <button className="button small green btn-ghost" onClick={() => undoGoal(g)}>
+  Undo
+</button>
 
                       {/* Delete on completed */}
                       <button className="button small btn-danger" onClick={() => requestDeleteGoal(g._id)}>Delete</button>
