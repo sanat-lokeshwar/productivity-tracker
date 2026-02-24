@@ -1,70 +1,62 @@
 // client/src/App.js
-import React, { useContext, useEffect, useMemo } from 'react'; // Added useMemo
+import React, { useEffect, useMemo, useState } from 'react';
 import AppLayout from './layout/AppLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Goals from './pages/Goals/Goals';
 import Routine from './pages/Routine/Routine';
 import Consistency from './pages/Consistency/Consistency';
 import Login from './pages/Auth/Login';
-import Signup from './pages/Auth/Signup';
-import { AuthContext } from './contexts/AuthContext';
-
-import { getAuth, signOut } from 'firebase/auth';
+import { useAuth } from './contexts/AuthContext';
 
 export default function App() {
-  const [page, setPage] = React.useState('dashboard');
-  const { user, loading } = useContext(AuthContext);
+  const [page, setPage] = useState('dashboard');
+  const { user, loading, logout } = useAuth();
 
-  // Define protected pages (Wrapped in useMemo to stop re-render warnings)
+  // Define protected pages
   const appPages = useMemo(() => new Set(['dashboard', 'goals', 'routine', 'consistency']), []);
 
   const handleLogout = async () => {
     try {
-      // 1. CLEAR BROWSER MEMORY (The Fix)
-      localStorage.removeItem('pt_routines_v1');      // Clear Routines
-      localStorage.removeItem('pt_activities_v1');    // Clear Activities
-      localStorage.removeItem('pt_timer_active_v1');  // Clear active timers
+      // 1. Clear app-specific local storage
+      localStorage.removeItem('pt_routines_v1');
+      localStorage.removeItem('pt_activities_v1');
+      localStorage.removeItem('pt_timer_active_v1');
       
-      // 2. Sign out from Firebase
-      const auth = getAuth();
-      await signOut(auth);
+      // 2. Call the centralized logout from AuthContext
+      await logout();
       
-      // 3. Send user to Login Page
-      // We use setPage because your app uses state navigation, not URL routing
+      // 3. Reset local navigation state
       setPage('login'); 
       
-      // Optional: Force a reload to ensure all RAM/Component states are wiped clean
-      window.location.reload(); 
+      // Optional: If you want a hard reset of all React states
+      // window.location.reload(); 
       
     } catch (error) {
       console.error("Error logging out:", error);
     }
   };
 
-  // Effect: Redirect to Login if user is not found
+  // Redirect Logic: If not loading and no user, force login page for protected routes
   useEffect(() => {
     if (!loading && !user && appPages.has(page)) {
       setPage('login');
     }
   }, [user, loading, page, appPages]);
 
-  if (loading) return <div style={{ display:'flex', height:'100vh', justifyContent:'center', alignItems:'center' }}>Loading...</div>;
-
-  // --- FULL SCREEN AUTH PAGES (No Sidebar) ---
-  if (page === 'login') {
+  // Loading Screen
+  if (loading) {
     return (
-      <Login 
-        onSuccess={() => setPage('dashboard')} 
-        onSwitch={() => setPage('signup')} 
-      />
+      <div style={styles.loaderContainer}>
+        <div style={styles.loader}>Loading Productivity...</div>
+      </div>
     );
   }
 
-  if (page === 'signup') {
+  // --- AUTH PAGE (No Sidebar) ---
+  if (page === 'login' || !user) {
     return (
-      <Signup 
+      <Login 
         onSuccess={() => setPage('dashboard')} 
-        onSwitch={() => setPage('login')} 
       />
     );
   }
@@ -75,7 +67,7 @@ export default function App() {
       page={page}
       onNavigate={setPage}
       user={user}
-      onLogout={handleLogout} // Pass the fixed logout function here
+      onLogout={handleLogout}
     >
       {page === 'dashboard' && <Dashboard />}
       {page === 'goals' && <Goals />}
@@ -84,3 +76,19 @@ export default function App() {
     </AppLayout>
   );
 }
+
+const styles = {
+  loaderContainer: {
+    display: 'flex',
+    height: '100vh',
+    width: '100vw',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6'
+  },
+  loader: {
+    fontSize: '1.2rem',
+    color: '#374151',
+    fontWeight: '500'
+  }
+};

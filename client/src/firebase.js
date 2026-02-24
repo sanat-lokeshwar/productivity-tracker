@@ -2,13 +2,17 @@
 // Final defensive Firebase initializer for local dev.
 
 import { initializeApp, getApps } from 'firebase/app';
-import {
-    getAuth,
-    createUserWithEmailAndPassword as _createUserWithEmailAndPassword,
-    signInWithEmailAndPassword as _signInWithEmailAndPassword,
-    onAuthStateChanged as _onAuthStateChanged,
-    signOut as _signOut,
+import { 
+    getAuth, 
+    onAuthStateChanged as _onAuthStateChanged, 
+    signOut as _signOut, 
+    GoogleAuthProvider, 
+    signInWithPopup 
 } from 'firebase/auth';
+export const googleProvider = new GoogleAuthProvider();
+// Optional: force account selection every time
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
 
 /**
  * ========  CONFIGURATION  ========
@@ -42,8 +46,9 @@ function validate(cfg) {
 
 const _check = validate(CONFIG);
 
-let app = null;
+
 let auth = null;
+let app = null;
 
 if (_check.ok) {
     try {
@@ -91,34 +96,18 @@ export function isFirebaseConfigured() {
 }
 
 /* Wrap createUser with richer logging */
-export async function createUser(email, password) {
+export async function signInWithGoogle() {
     requireAuth();
     try {
-        const cred = await _createUserWithEmailAndPassword(auth, email, password);
-        return cred;
+        const result = await signInWithPopup(auth, googleProvider);
+        return result;
     } catch (err) {
-        // helpful logging for common identitytoolkit errors (400 responses)
-        // eslint-disable-next-line no-console
-        console.error('[firebase] createUser failed:', {
-            code: err.code || null,
-            message: err.message || null,
-            customData: err.customData || null,
-            serverResponse: err?.serverResponse || null,
-        });
+        console.error('[firebase] Google Sign-In failed:', { code: err.code, message: err.message });
         throw err;
     }
 }
 
-export async function signIn(email, password) {
-    requireAuth();
-    try {
-        return await _signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('[firebase] signIn failed:', { code: err.code, message: err.message });
-        throw err;
-    }
-}
+
 
 export async function signOut() {
     requireAuth();
@@ -131,5 +120,5 @@ export function onAuthStateChanged(cb) {
 }
 
 export { app, auth };
-//eslint-disable-next-line
-export default { app, auth, isFirebaseConfigured, createUser, signIn, signOut, onAuthStateChanged };
+//eslint-disable-next-line import/no-anonymous-default-export
+export default { app, auth, isFirebaseConfigured, signInWithGoogle, signOut, onAuthStateChanged };

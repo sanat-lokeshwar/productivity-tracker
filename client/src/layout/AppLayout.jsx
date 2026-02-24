@@ -9,7 +9,7 @@ export default function AppLayout({ children, page, onNavigate, user, onLogout }
   return (
     <div className="app">
       
-      {/* 1. ADDED 'desktop-sidebar' CLASS HERE 👇 */}
+      {/* 1. DESKTOP SIDEBAR */}
       <aside className="sidebar desktop-sidebar">
         <div
           className="brand"
@@ -57,32 +57,53 @@ export default function AppLayout({ children, page, onNavigate, user, onLogout }
           </button>
         </nav>
 
-        {/* ======== FOOTER SECTION ======== */}
+        {/* ======== FOOTER SECTION (Updated for Google Auth) ======== */}
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {user && (
             <div style={{ 
-              padding: '10px', 
-              background: 'rgba(255,255,255,0.03)', 
-              borderRadius: '8px',
+              padding: '12px', 
+              background: 'rgba(255,255,255,0.05)', 
+              borderRadius: '10px',
               display: 'flex', 
               flexDirection: 'column', 
-              gap: '8px' 
+              gap: '10px',
+              border: '1px solid rgba(255,255,255,0.1)'
             }}>
-              <span style={{ fontSize: '11px', color: '#9ca3af', wordBreak: 'break-all' }}>
-                {user.email}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {user.photoURL ? (
+                  <img 
+                    src={user.photoURL} 
+                    alt="Profile" 
+                    style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #4b5563' }} 
+                  />
+                ) : (
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#4b5563', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
+                    {user.displayName ? user.displayName.charAt(0) : 'U'}
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '600', color: '#f3f4f6', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {user.displayName || 'User'}
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#9ca3af', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {user.email}
+                  </span>
+                </div>
+              </div>
+
               <button
                 onClick={onLogout}
                 style={{
-                  background: 'rgba(239, 68, 68, 0.15)',
+                  background: 'rgba(239, 68, 68, 0.1)',
                   color: '#f87171',
                   border: '1px solid rgba(239, 68, 68, 0.2)',
-                  padding: '6px 10px',
+                  padding: '8px',
                   borderRadius: '6px',
                   cursor: 'pointer',
                   fontSize: '12px',
-                  fontWeight: '500',
-                  textAlign: 'center'
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  transition: 'all 0.2s'
                 }}
               >
                 Sign Out
@@ -90,18 +111,18 @@ export default function AppLayout({ children, page, onNavigate, user, onLogout }
             </div>
           )}
 
-          <div style={{ fontSize: 12, color: '#9ca3af' }}>
-            <span style={{ color: '#d1d5db' }}>Made with ❤️</span>
+          <div style={{ fontSize: 11, color: '#6b7280', textAlign: 'center', padding: '0 5px' }}>
+            <span>Made with ❤️ for Productivity</span>
           </div>
         </div>
       </aside>
 
-      {/* 2. ADDED 'app-main-content' CLASS HERE 👇 */}
+      {/* 2. MAIN CONTENT */}
       <main className="main app-main-content">
         {children}
       </main>
 
-      {/* 3. NEW MOBILE BOTTOM NAV (Visible only on mobile via CSS) 👇 */}
+      {/* 3. MOBILE BOTTOM NAV */}
       <nav className="mobile-bottom-nav">
         <button className={`nav-item ${isActive('dashboard')}`} onClick={() => onNavigate('dashboard')}>
           <span className="nav-icon">📊</span>

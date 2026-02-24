@@ -1,30 +1,19 @@
 // client/src/pages/Auth/Login.jsx
-import React, { useState, useContext } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
-import { AuthContext } from '../../contexts/AuthContext';
+import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
-export default function Login({ onSuccess, onSwitch }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { setUser } = useContext(AuthContext);
+export default function Login({ onSuccess }) {
+  const { login, loading } = useAuth();
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleGoogleLogin = async () => {
     setError('');
     try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      const token = await cred.user.getIdToken();
-      setUser({
-        uid: cred.user.uid,
-        email: cred.user.email,
-        token
-      });
+      await login();
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      setError('Invalid email or password');
+      setError('Failed to sign in with Google. Please try again.');
     }
   };
 
@@ -36,41 +25,23 @@ export default function Login({ onSuccess, onSwitch }) {
         
         {error && <div style={styles.error}>{error}</div>}
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Email Address</label>
-            <input 
-              type="email" 
-              placeholder="you@example.com" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-              style={styles.input}
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              style={styles.input}
-            />
-          </div>
-
-          <button type="submit" style={styles.button}>
-            Sign In
-          </button>
-        </form>
+        <button 
+          onClick={handleGoogleLogin} 
+          style={loading ? {...styles.button, ...styles.buttonDisabled} : styles.button}
+          disabled={loading}
+        >
+          {loading ? (
+            'Connecting...'
+          ) : (
+            <>
+              <span style={styles.icon}>G</span>
+              Continue with Google
+            </>
+          )}
+        </button>
 
         <p style={styles.footerText}>
-          Don't have an account?{' '}
-          <span onClick={onSwitch} style={styles.link}>
-            Sign Up
-          </span>
+          Secure authentication powered by Firebase
         </p>
       </div>
     </div>
@@ -83,64 +54,56 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f3f4f6', // Light gray background
+    backgroundColor: '#f3f4f6',
     padding: '20px',
   },
   card: {
     backgroundColor: '#ffffff',
     width: '100%',
+    maxHeight: '300px',
     maxWidth: '400px',
     padding: '2.5rem',
     borderRadius: '12px',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    textAlign: 'center',
   },
   title: {
     fontSize: '1.5rem',
     fontWeight: '700',
     color: '#111827',
     marginBottom: '0.5rem',
-    textAlign: 'center',
   },
   subtitle: {
     fontSize: '0.875rem',
     color: '#6b7280',
-    textAlign: 'center',
     marginBottom: '2rem',
   },
-  form: {
+  button: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: '1.25rem',
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-  },
-  label: {
-    fontSize: '0.875rem',
-    fontWeight: '500',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px',
+    width: '100%',
+    backgroundColor: '#ffffff',
     color: '#374151',
-  },
-  input: {
     padding: '0.75rem',
     borderRadius: '6px',
     border: '1px solid #d1d5db',
     fontSize: '1rem',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  button: {
-    backgroundColor: '#2563eb', // Blue
-    color: 'white',
-    padding: '0.75rem',
-    borderRadius: '6px',
-    border: 'none',
-    fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',
-    marginTop: '0.5rem',
-    transition: 'background-color 0.2s',
+    transition: 'all 0.2s',
+    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  },
+  buttonDisabled: {
+    backgroundColor: '#f9fafb',
+    cursor: 'not-allowed',
+    opacity: 0.7,
+  },
+  icon: {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    color: '#4285F4', // Google Blue
   },
   error: {
     backgroundColor: '#fee2e2',
@@ -148,18 +111,11 @@ const styles = {
     padding: '0.75rem',
     borderRadius: '6px',
     fontSize: '0.875rem',
-    textAlign: 'center',
-    marginBottom: '1rem',
+    marginBottom: '1.5rem',
   },
   footerText: {
-    textAlign: 'center',
-    fontSize: '0.875rem',
-    color: '#6b7280',
-    marginTop: '1.5rem',
-  },
-  link: {
-    color: '#2563eb',
-    fontWeight: '600',
-    cursor: 'pointer',
+    fontSize: '0.75rem',
+    color: '#9ca3af',
+    marginTop: '2rem',
   }
 };

@@ -2,11 +2,7 @@
 const admin = require('../firebaseAdmin');
 
 // 👇 REPLACE THIS WITH YOUR REAL EMAIL 👇
-const ADMIN_EMAILS = [
-  'roy@example.com', 
-  'sanat@example.com' 
-];
-
+const ADMIN_EMAILS = ['roybhaihai2000@gmail.com'];
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   
@@ -43,5 +39,12 @@ const verifyToken = async (req, res, next) => {
     return res.status(401).json({ message: 'Token is not valid' });
   }
 };
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied: Admin privileges required' });
+  }
+};
 
-module.exports = { verifyToken };
+module.exports = { verifyToken, adminOnly };
